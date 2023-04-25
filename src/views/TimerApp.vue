@@ -66,6 +66,12 @@ const gotoparams = () => {
   router.push('/params')
 }
 
+window.addEventListener('keypress', (e) => {
+  if (e.key === "?") {
+    gotoparams()
+  }
+})
+
 </script>
 
 <style scoped>
