@@ -15,19 +15,22 @@
         <button class="start" v-if="!timer">START</button>
       </transition>
       <transition name="pass">
-        <button class="pass" v-if="!timer">PASS</button>
+        <button class="pass" v-if="!timer" @click="startCounting">PASS</button>
       </transition>
     </div>
   </div>
 </template>
 
 <script setup>
-import dedent from 'dedent';
+import { useParamStore } from '@/stores/params';
 import { ref } from 'vue';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import dedent from 'dedent';
 
-const timer = ref(10)
+const paramStore = useParamStore()
+
+const timer = ref(paramStore.initSeconds)
 const pause = ref(false)
 
 
@@ -42,15 +45,19 @@ const formatedTimer = computed(() => {
   })}`
 })
 
-const interval = setInterval(() => {
-  if (timer.value) {
-    if (!pause.value) {
-      timer.value--
+const count = () => {
+  const interval = setInterval(() => {
+    if (timer.value) {
+      if (!pause.value) {
+        timer.value--
+      }
+    } else {
+      clearInterval(interval)
     }
-  } else {
-    clearInterval(interval)
-  }
-}, 1000)
+  }, 1000)
+}
+
+count()
 
 const wheel = (e) => {
   if (e.deltaY < 0) {
@@ -61,6 +68,11 @@ const wheel = (e) => {
 }
 
 const router = useRouter() 
+
+const startCounting = () => {
+  timer.value = paramStore.initSeconds
+  count()
+}
 
 const gotoparams = () => {
   router.push('/params')

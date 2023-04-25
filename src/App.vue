@@ -35,6 +35,10 @@ body {
   color: #adb5bd;
 }
 
+ul,ol {
+  list-style: none;
+}
+
 .page-slice-enter-active,
 .page-slice-leave-active {
   position: absolute;
