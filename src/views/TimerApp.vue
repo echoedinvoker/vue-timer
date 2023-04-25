@@ -1,24 +1,23 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-    class="question-icon">
-    <path stroke-linecap="round" stroke-linejoin="round"
-      d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-  </svg>
-  <div class="container">
-
-    <transition>
-      <div class="timer" :class="{ pause: pause }" v-if="timer" @click="pause = !pause" @wheel="wheel">
-        {{ formatedTimer }}
-      </div>
-    </transition>
-    <transition name="start">
-      <button class="start" v-if="!timer">START</button>
-    </transition>
-    <transition name="pass">
-      <button class="pass" v-if="!timer">PASS</button>
-    </transition>
-  </div>
-  <div>
+  <div class="flex-container">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+      class="question-icon" @click="gotoparams">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+    </svg>
+    <div class="flex-container">
+      <transition>
+        <div class="timer" :class="{ pause: pause }" v-if="timer" @click="pause = !pause" @wheel="wheel">
+          {{ formatedTimer }}
+        </div>
+      </transition>
+      <transition name="start">
+        <button class="start" v-if="!timer">START</button>
+      </transition>
+      <transition name="pass">
+        <button class="pass" v-if="!timer">PASS</button>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -26,8 +25,9 @@
 import dedent from 'dedent';
 import { ref } from 'vue';
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
-const timer = ref(70)
+const timer = ref(10)
 const pause = ref(false)
 
 
@@ -60,6 +60,12 @@ const wheel = (e) => {
   }
 }
 
+const router = useRouter() 
+
+const gotoparams = () => {
+  router.push('/params')
+}
+
 </script>
 
 <style scoped>
@@ -68,15 +74,6 @@ const wheel = (e) => {
   font-size: 36px;
   font-weight: 700;
   transition: transform 1s ease-out;
-}
-
-.container {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-  justify-content: center;
-  align-items: center;
-  height: 70px;
 }
 
 .start,
@@ -111,29 +108,29 @@ const wheel = (e) => {
 }
 
 .v-enter-active {
-  animation: fade-in 0.3s ease-in forwards;
+  animation: fade-in 1s ease-in forwards;
   position: absolute;
 }
 
 .v-leave-active {
-  animation: fade-out 0.3s ease-out forwards;
+  animation: fade-out 1s ease-out forwards;
   position: absolute;
 }
 
 .start-enter-active {
-  animation: left-in 0.3s ease-in forwards;
+  animation: left-in 1s ease-in forwards;
 }
 
 .start-leave-active {
-  animation: left-in 0.3s ease-out forwards reverse;
+  animation: left-in 1s ease-out forwards reverse;
 }
 
 .pass-enter-active {
-  animation: right-in 0.3s ease-in forwards;
+  animation: right-in 1s ease-in forwards;
 }
 
 .pass-leave-active {
-  animation: right-in 0.3s ease-out forwards reverse;
+  animation: right-in 1s ease-out forwards reverse;
 }
 
 @keyframes fade-out {
