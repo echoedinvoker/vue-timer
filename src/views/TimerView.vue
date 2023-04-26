@@ -1,7 +1,7 @@
 <template>
   <div class="flex-container">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-      class="icon question-icon" @click="gotoparams">
+      class="icon question-icon" @click="gotoParams">
       <path stroke-linecap="round" stroke-linejoin="round"
         d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
     </svg>
@@ -12,7 +12,7 @@
         </div>
       </transition>
       <transition name="start">
-        <button class="start" v-if="!timer">START</button>
+        <button class="start" v-if="!timer" @click="trigEmily">START</button>
       </transition>
       <transition name="pass">
         <button class="pass" v-if="!timer" @click="startCounting">PASS</button>
@@ -23,11 +23,13 @@
 
 <script setup>
 import { useParamStore } from '@/stores/params';
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import dedent from 'dedent';
+import axios from 'axios';
 
+const router = useRouter()
 const paramStore = useParamStore()
 
 const timer = ref(paramStore.initSeconds)
@@ -67,27 +69,36 @@ const wheel = (e) => {
   }
 }
 
-const router = useRouter() 
-
 const startCounting = () => {
   timer.value = paramStore.initSeconds
   count()
 }
 
-const gotoparams = () => {
+const trigEmily = async () => {
+  // const response = await axios.get('http://localhost:3000/api', {
+  //   headers: { "Access-Control-Allow-Origin": "*" }
+  // })
+  const response = await axios.get('http://localhost:3000/api')
+  console.log(response.status)
+}
+
+const gotoParams = () => {
   router.push('/params')
 }
 
-window.addEventListener('keypress', (e) => {
+const gotoParamsHandler = (e) => {
   if (e.key === "?") {
-    gotoparams()
+    gotoParams()
   }
-})
+}
+
+window.addEventListener('keypress', gotoParamsHandler)
+
+onUnmounted('keypress', gotoParamsHandler)
 
 </script>
 
 <style scoped>
-
 .timer {
   font-size: 36px;
   font-weight: 700;

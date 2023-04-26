@@ -1,10 +1,11 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import TimerView from './views/TimerView.vue'
 import ParamsView from './views/ParamsView.vue'
-import { createPinia } from 'pinia'
-
+import axios from 'axios';
+import VueAxios from 'vue-axios'
 
 const pinia = createPinia()
 const router = createRouter({
@@ -21,5 +22,8 @@ const app = createApp(App)
 
 app.use(router)
 app.use(pinia)
+app.use(VueAxios, axios)
+
+app.provide('axios', app.config.globalProperties.axios)
 
 app.mount('#app')
