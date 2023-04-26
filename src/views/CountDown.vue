@@ -1,0 +1,217 @@
+<template>
+  <div class="flex-container">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+      class="icon question-icon" @click="router.push('/params')">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+    </svg>
+    <main class="flex-container">
+      <transition>
+        <div class="timer" :class="{ pause: pause }" v-if="timer" @click="pause = !pause" @wheel="wheel">
+          {{ formatedTimer }}
+        </div>
+      </transition>
+      <transition name="start">
+        <button class="start" v-if="!timer" @click="trigEmily">START</button>
+      </transition>
+      <transition name="pass">
+        <button class="pass" v-if="!timer" @click="startCounting">PASS</button>
+      </transition>
+      <a href="http://localhost:3000/api?uuid=45ac8080-4e05-48ea-9567-2c70cc482fab" ref="anchorRef" target="_blank" hidden>aaa</a>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { useParamStore } from '@/stores/params';
+import { onUnmounted, ref } from 'vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import dedent from 'dedent';
+// import axios from 'axios';
+
+const router = useRouter()
+const paramStore = useParamStore()
+
+const timer = ref(paramStore.initSeconds)
+const pause = ref(false)
+const anchorRef = ref(null)
+
+
+const formatedTimer = computed(() => {
+  const minute = Math.floor(timer.value / 60)
+  const second = timer.value % 60
+  return dedent`
+    ${minute ? minute + ':' : ''}\
+    ${timer.value < 60 ? second : second.toLocaleString('en-US', {
+    minimumIntegerDigits: 2,
+    useGrouping: false
+  })}`
+})
+
+const count = () => {
+  const interval = setInterval(() => {
+    if (timer.value) {
+      if (!pause.value) {
+        timer.value--
+      }
+    } else {
+      clearInterval(interval)
+    }
+  }, 1000)
+}
+
+count()
+
+const wheel = (e) => {
+  if (e.deltaY < 0) {
+    timer.value++
+  } else {
+    timer.value--
+  }
+}
+
+const startCounting = () => {
+  timer.value = paramStore.initSeconds
+  count()
+}
+
+const trigEmily = async () => {
+  // const response = await axios.get('http://localhost:3000/api', {
+  //   headers: { "Access-Control-Allow-Origin": "*" }
+  // })
+  // anchorRef.value.click()
+  router.push('/timer')
+}
+
+const gotoParamsHandler = (e) => {
+  if (e.key === "?") {
+    router.push("/params")
+  }
+}
+
+window.addEventListener('keypress', gotoParamsHandler)
+
+onUnmounted('keypress', gotoParamsHandler)
+
+</script>
+
+<style scoped>
+.start,
+.pass {
+  color: #212529;
+  font-weight: 700;
+  background-color: #99e9f2;
+  padding: 10px;
+  border: none;
+  width: 70px;
+  border-radius: 100px;
+}
+
+.pause {
+  text-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
+}
+
+.start:hover {
+  box-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
+}
+
+.start:active {
+  box-shadow: 0 0 15px rgba(153, 233, 242, 0.4);
+}
+
+
+.v-enter-active {
+  animation: fade-in 1s ease-in forwards;
+  position: absolute;
+}
+
+.v-leave-active {
+  animation: fade-out 1s ease-out forwards;
+  position: absolute;
+}
+
+.start-enter-active {
+  animation: left-in 1s ease-in forwards;
+}
+
+.start-leave-active {
+  animation: left-in 1s ease-out forwards reverse;
+}
+
+.pass-enter-active {
+  animation: right-in 1s ease-in forwards;
+}
+
+.pass-leave-active {
+  animation: right-in 1s ease-out forwards reverse;
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  70% {
+    opacity: 0.5;
+    transform: scale(1.5);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  30% {
+    opacity: 0.5;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes left-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-120px);
+  }
+
+  30% {
+    opacity: 0.5;
+    transform: translateX(-60px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes right-in {
+  0% {
+    opacity: 0;
+    transform: translateX(120px);
+  }
+
+  30% {
+    opacity: 0.5;
+    transform: translateX(60px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+</style>

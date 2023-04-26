@@ -16,7 +16,7 @@ FONT SIZE SYSTEM (px)
 
 /*
 COLORS
-MAIN(backgound): #212529 #adb5bd(lighter)
+MAIN(backgound): #212529 #495057 #adb5bd(lighter)
 SUB(button): #99e9f2
 */
 
@@ -40,10 +40,23 @@ ul,ol {
   list-style: none;
 }
 
+.timer {
+  font-size: 36px;
+  font-weight: 700;
+  transition: transform 1s ease-out;
+}
+
 .icon {
   stroke: #adb5bd;
   width: 20px;
 }
+
+.question-icon {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
 .page-slice-enter-active,
 .page-slice-leave-active {
   position: absolute;
@@ -53,7 +66,6 @@ ul,ol {
 .page-slice-enter-from,
 .page-slice-leave-to {
   opacity: 0;
-  transform: translateY(200px);
 }
 
 .flex-container {

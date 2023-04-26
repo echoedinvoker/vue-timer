@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 import App from './App.vue'
+import CountDown from './views/CountDown.vue'
 import TimerView from './views/TimerView.vue'
 import ParamsView from './views/ParamsView.vue'
 import axios from 'axios';
@@ -11,7 +12,8 @@ const pinia = createPinia()
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', redirect: '/timer'},
+    { path: '/', redirect: '/countdown'},
+    { path: '/countdown', component: CountDown},
     { path: '/timer', component: TimerView},
     { path: '/params', component: ParamsView},
   ]
