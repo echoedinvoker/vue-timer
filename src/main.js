@@ -10,6 +10,7 @@ const pinia = createPinia()
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/', redirect: '/timer'},
     { path: '/timer', component: TimerView},
     { path: '/params', component: ParamsView},
   ]

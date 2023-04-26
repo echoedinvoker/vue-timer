@@ -31,6 +31,7 @@ SUB(button): #99e9f2
 /* GENERAL STYLES */
 /* ------------------------ */
 body {
+  font-size: 18px;
   font-family: 'inter', sans-serif;
   color: #adb5bd;
 }
@@ -39,6 +40,10 @@ ul,ol {
   list-style: none;
 }
 
+.icon {
+  stroke: #adb5bd;
+  width: 20px;
+}
 .page-slice-enter-active,
 .page-slice-leave-active {
   position: absolute;
