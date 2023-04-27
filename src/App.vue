@@ -40,6 +40,16 @@ ul,ol {
   list-style: none;
 }
 
+.btn {
+  color: #212529;
+  font-weight: 700;
+  background-color: #99e9f2;
+  padding: 10px;
+  border: none;
+  width: 70px;
+  border-radius: 100px;
+}
+
 .timer {
   font-size: 36px;
   font-weight: 700;

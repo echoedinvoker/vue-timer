@@ -12,10 +12,10 @@
         </div>
       </transition>
       <transition name="start">
-        <button class="start" v-if="!timer" @click="trigEmily">START</button>
+        <button class="btn" v-if="!timer" @click="trigEmily">START</button>
       </transition>
       <transition name="pass">
-        <button class="pass" v-if="!timer" @click="startCounting">PASS</button>
+        <button class="btn" v-if="!timer" @click="startCounting">PASS</button>
       </transition>
       <a href="http://localhost:3000/api?uuid=45ac8080-4e05-48ea-9567-2c70cc482fab" ref="anchorRef" target="_blank" hidden>aaa</a>
     </main>
@@ -97,16 +97,6 @@ onUnmounted('keypress', gotoParamsHandler)
 </script>
 
 <style scoped>
-.start,
-.pass {
-  color: #212529;
-  font-weight: 700;
-  background-color: #99e9f2;
-  padding: 10px;
-  border: none;
-  width: 70px;
-  border-radius: 100px;
-}
 
 .pause {
   text-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
