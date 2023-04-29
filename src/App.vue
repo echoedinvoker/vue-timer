@@ -1,7 +1,8 @@
 <template>
-  <router-view v-slot="{ Component }" >
+  <router-view v-slot="{ Component }">
     <transition mode="default" name="page-slice">
-      <component :is="Component" @up="up" @down="down" @pause-release="pause = false" @click='togglePause' :pause="pause" class="root" :class="{'count-down': !start, 'count-up': start}"></component>
+      <component :is="Component" @up="up" @down="down" @pause-release="pause = false" @click='togglePause' :pause="pause"
+        class="root" :class="{ 'count-down': !start, 'count-up': start }"></component>
     </transition>
   </router-view>
 </template>
@@ -66,7 +67,8 @@ SUB(button): #99e9f2
   background-color: #212529;
 }
 
-ul,ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -108,5 +110,4 @@ ul,ol {
   width: 100%;
   height: 100vh;
 }
-
 </style>
