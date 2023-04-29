@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import TimerView from './views/TimerView.vue'
-import ParamsView from './views/ParamsView.vue'
+import LectureView from './views/LectureView.vue'
 import axios from 'axios';
 import VueAxios from 'vue-axios'
 
@@ -13,7 +13,7 @@ const router = createRouter({
   routes: [
     { path: '/', redirect: '/timer'},
     { path: '/timer', component: TimerView},
-    { path: '/params', component: ParamsView},
+    { path: '/lecture', component: LectureView},
   ]
 })
 
