@@ -1,10 +1,31 @@
 <template>
-  <router-view v-slot="{ Component }">
+  <router-view v-slot="{ Component }" >
     <transition mode="default" name="page-slice">
-      <component :is="Component"></component>
+      <component :is="Component" @up="up" @down="down" @pause-release="pause = false" @click='togglePause' :pause="pause" class="root" :class="{'count-down': !start, 'count-up': start}"></component>
     </transition>
   </router-view>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+
+
+const start = ref(false)
+const pause = ref(false)
+
+const up = () => {
+  start.value = true
+}
+
+const down = () => {
+  start.value = false
+}
+
+const togglePause = () => {
+  pause.value = !pause.value
+}
+</script>
+
 
 <style>
 /*
@@ -24,31 +45,31 @@ SUB(button): #99e9f2
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: #212529;
 }
 
 /* ------------------------ */
 /* GENERAL STYLES */
 /* ------------------------ */
-body {
+.root {
   font-size: 18px;
   font-family: 'inter', sans-serif;
+  transition: all 1s ease;
+}
+
+.count-up {
+  color: #212529;
+  background-color: #99e9f2;
+}
+
+.count-down {
   color: #adb5bd;
+  background-color: #212529;
 }
 
 ul,ol {
   list-style: none;
 }
 
-.btn {
-  color: #212529;
-  font-weight: 700;
-  background-color: #99e9f2;
-  padding: 10px;
-  border: none;
-  width: 70px;
-  border-radius: 100px;
-}
 
 .timer {
   font-size: 36px;
