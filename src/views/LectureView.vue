@@ -146,11 +146,11 @@ const changeTarget = async (subject) => {
 let targetedSubject
 
 onMounted(async () => {
+  await axios.get('bash/fullscreen')
   const { data: { data: { lectures: lecData } } } = await axios.get('lecture')
   lectures.splice(0, lectures.length, ...lecData)
 
   targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject
-  await axios.get('bash/fullscreen')
 })
 </script>
 
