@@ -1,174 +1,145 @@
 <template>
-  <div class="flex-container">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-      class="icon question-icon" @click="router.push('/lecture')">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-    </svg>
-    <main class="flex-container">
-      <transition>
-        <div class="timer" :class="{ pause: pause }" v-if="!(!timer || (pause && starting))" @wheel="wheel">
-          {{ formatedTimer }}
+  <div class="flex">
+    <transition>
+      <div 
+        class="timer" 
+        :class="{
+          'pause': timeStore.pause
+        }"
+          v-if="!((timeStore.direction === 'up' && timeStore.pause) || 
+            (timeStore.direction === 'down' && !timeStore.time))" 
+      >
+        {{ formatedTimer }}
+      </div>
+    </transition>
+      <transition name="left">
+        <button 
+          v-if="(timeStore.direction === 'up' && timeStore.pause) || 
+            (timeStore.direction === 'down' && !timeStore.time)" 
+          @click="timeStore.direction === 'down' ? start() : done()"
+          class="btn" :class="{
+              'btn-down': timeStore.direction === 'down',
+              'btn-up': timeStore.direction === 'up',
+            }">{{ timeStore.direction === 'down' ? 
+              buttonText.down.left : 
+              buttonText.up.left }}
+        </button>
+      </transition>
+      <transition name="right">
+      <div
+          v-if="(timeStore.direction === 'up' && timeStore.pause) || 
+            (timeStore.direction === 'down' && !timeStore.time)" 
+      >
+      <v-badge 
+        :content="timeStore.passTimes" 
+        :color="timeStore.direction === 'down' && timeStore.passTimes ? '' : 'rgba(0,0,0,0)'" 
+        :dot="timeStore.direction === 'up' || !timeStore.passTimes">
+        <button 
+          @click="timeStore.direction === 'down' ? pass() : skip()"
+          class="btn" :class="{
+              'btn-down': timeStore.direction === 'down',
+              'btn-up': timeStore.direction === 'up',
+            }">{{ 
+            timeStore.direction === 'down' ? 
+              (timeStore.init ? buttonText.down.right.init : buttonText.down.right.after) :
+              buttonText.up.right 
+            }}
+        </button>
+      </v-badge>
         </div>
       </transition>
-      <transition name="start">
-        <button class="btn" :class="{'btn-up': starting, 'btn-down': !starting}" v-if="!timer || (pause && starting)" @click="left">{{ starting ? btnText.up[0] : btnText.down[0] }}</button>
-      </transition>
-      <transition name="pass">
-        <button class="btn" :class="{'btn-up': starting, 'btn-down': !starting}" v-if="!timer || (pause && starting)" @click="right">{{ starting ? btnText.up[1] : btnText.down[1] }}</button>
-      </transition>
-    </main>
-  </div>
+    </div>
 </template>
 
 <script setup>
 
-// Import Vue related package
-
-import { useParamStore } from '@/stores/params';
-import { onUnmounted, ref, defineEmits, reactive, defineProps } from 'vue';
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-
-// Import other packages
-
 import dedent from 'dedent';
+import { useTimeStore } from '@/stores/time';
+import { reactive } from 'vue';
+import { onMounted } from 'vue';
+import { onUnmounted } from 'vue';
 
+const timeStore = useTimeStore()
 
-// Normal variables
-
-let intervalUp
-
-// States
-
-const router = useRouter()
-const paramStore = useParamStore()
-
-const timer = ref(paramStore.initSeconds)
-const btnText = reactive({
-  up: ['DONE', 'SKIP'],
-  down: ['START', 'PASS']
+const buttonText = reactive({
+  up: { left: 'DONE', right: 'SKIP' },
+  down: { left: 'START', right: { init: 'REST', after: 'PASS'} }
 })
-const starting = ref(false)
 
 // Computed
 
 const formatedTimer = computed(() => {
-  const minute = Math.floor(timer.value / 60)
-  const second = timer.value % 60
+  const minute = Math.floor(timeStore.time / 60)
+  const second = timeStore.time % 60
   return dedent`
     ${minute ? minute + ':' : ''}\
-    ${timer.value < 60 ? second : second.toLocaleString('en-US', {
+    ${timeStore.time < 60 ? second : second.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
     useGrouping: false
   })}`
 })
 
-// Props definition
-
-const props = defineProps(['pause'])
-
-// Emits definition
-
-const emits = defineEmits(['up', 'down', 'pause-release' ])
 
 
-// Utilities functions
-
-const countDown = () => {
-  const interval= setInterval(() => {
-    if (timer.value) {
-      if (!props.pause) {
-        timer.value--
-      }
-    } else {
-      clearInterval(interval)
-    }
-  }, 1000)
+const start = () => {
+  timeStore.countUp()
+  timeStore.pause = false
 }
 
-const countUp = () => {
-  const interval = setInterval(() => {
-    if (!props.pause) {
-      timer.value++
-    }
-  }, 1000)
-  return interval
+const done = () => {
+  timeStore.time = timeStore.countDownInit
+  timeStore.passTimes = 0
+  timeStore.countDown()
+  timeStore.pause = true
 }
 
-
-
-// Timer methods
-
-const wheel = (e) => {
-  if (e.deltaY < 0) {
-    timer.value++
-  } else {
-    if(timer.value > 0) {
-      timer.value--
-    }
+const pass = () => {
+  timeStore.time = timeStore.countDownInit
+  if (!timeStore.init) {
+   timeStore.passTimes++
   }
+  timeStore.init = false
+  timeStore.countDown()
+  timeStore.pause = false
 }
 
-
-// Button methods
-
-const left = (ev) => {
-  if(!starting.value) {
-    ev.stopPropagation();
-    starting.value = true
-    intervalUp = countUp()
-    emits('up')
-  } else {
-    ev.stopPropagation();
-    starting.value = false
-    clearInterval(intervalUp)
-    timer.value = paramStore.initSeconds
-    countDown()
-    emits('down')
-  }
+const skip = () => {
+  timeStore.time = timeStore.countDownInit
+  timeStore.countDown()
+  timeStore.pause = true
 }
 
-const right = (ev) => {
-  if(!starting.value) {
-    ev.stopPropagation();
-    timer.value = paramStore.initSeconds
-    countDown()
-    emits('pause-release')
-  } else {
-    ev.stopPropagation();
-    starting.value = false
-    clearInterval(intervalUp)
-    timer.value = paramStore.initSeconds
-    countDown()
-    emits('down')
-  }
-
+const togglePause = () => {
+  timeStore.pause = !timeStore.pause
 }
 
-
-const gotoParamsHandler = (e) => {
-  if (e.key === "?") {
-    router.push("/params")
-  }
+const wheeling = (ev) => {
+  if (ev.deltaY < 0) timeStore.time++
+  if (ev.deltaY > 0 && timeStore.time) timeStore.time--
 }
 
-// Component lifecycle
+onMounted(() => {
+  document.addEventListener('mousedown', togglePause)
+  document.addEventListener('wheel', wheeling)
+})
 
-onUnmounted('keypress', gotoParamsHandler)
-
-// Window events
-
-window.addEventListener('keypress', gotoParamsHandler)
-
-
-// Run initially
-
-countDown()
+onUnmounted(() => {
+  document.removeEventListener('mousedown', togglePause)
+  document.removeEventListener('wheel', wheeling)
+})
 
 </script>
 
 <style scoped>
+.flex {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
 
 .pause {
   text-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
@@ -193,16 +164,6 @@ countDown()
   background-color: #FF6B6B;
 }
 
-
-/* .:hover { */
-/*   box-shadow: 0 0 10px rgba(153, 233, 242, 0.4); */
-/* } */
-
-/* .start:active { */
-/*   box-shadow: 0 0 15px rgba(153, 233, 242, 0.4); */
-/* } */
-
-
 .v-enter-active {
   animation: fade-in 1s ease-in forwards;
   position: absolute;
@@ -213,19 +174,19 @@ countDown()
   position: absolute;
 }
 
-.start-enter-active {
+.left-enter-active {
   animation: left-in 1s ease-in forwards;
 }
 
-.start-leave-active {
+.left-leave-active {
   animation: left-in 1s ease-out forwards reverse;
 }
 
-.pass-enter-active {
+.right-enter-active {
   animation: right-in 1s ease-in forwards;
 }
 
-.pass-leave-active {
+.right-leave-active {
   animation: right-in 1s ease-out forwards reverse;
 }
 

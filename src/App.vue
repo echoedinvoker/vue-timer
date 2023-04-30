@@ -1,30 +1,39 @@
 <template>
   <router-view v-slot="{ Component }">
     <transition mode="default" name="page-slice">
-      <component :is="Component" @up="up" @down="down" @pause-release="pause = false" @click='togglePause' :pause="pause"
-        class="root" :class="{ 'count-down': !start, 'count-up': start }"></component>
+      <component 
+        :is="Component" 
+        class="root" 
+        :class="{ 
+          'count-down': timeStore.direction === 'down', 
+          'count-up': timeStore.direction === 'up', 
+        }">
+
+      </component>
     </transition>
   </router-view>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useTimeStore } from './stores/time';
 
+const route = useRoute()
+const router = useRouter()
+const timeStore = useTimeStore()
 
-const start = ref(false)
-const pause = ref(false)
-
-const up = () => {
-  start.value = true
+const switchPages = (e) => {
+  if (e.key === " ") {
+    if (route.path.includes('lecture')) {
+      router.push("/")
+    } else {
+      router.push("/lecture")
+    }
+  }
 }
 
-const down = () => {
-  start.value = false
-}
+document.addEventListener('keydown', switchPages)
 
-const togglePause = () => {
-  pause.value = !pause.value
-}
 </script>
 
 
