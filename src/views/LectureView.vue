@@ -150,6 +150,7 @@ onMounted(async () => {
   lectures.splice(0, lectures.length, ...lecData)
 
   targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject
+  await axios.get('bash/fullscreen')
 })
 </script>
 

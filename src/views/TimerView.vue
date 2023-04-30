@@ -59,6 +59,7 @@ import { useTimeStore } from '@/stores/time';
 import { reactive } from 'vue';
 import { onMounted } from 'vue';
 import { onUnmounted } from 'vue';
+import axios from 'axios';
 
 
 const timeStore = useTimeStore()
@@ -120,7 +121,8 @@ const wheeling = (ev) => {
   if (ev.deltaY > 0 && timeStore.time) timeStore.time--
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await axios.get('bash/corner')
   document.addEventListener('mousedown', togglePause)
   document.addEventListener('wheel', wheeling)
 })

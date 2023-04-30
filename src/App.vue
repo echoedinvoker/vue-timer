@@ -1,16 +1,11 @@
 <template>
   <router-view v-slot="{ Component }">
-    <transition mode="default" name="page-slice">
-      <component 
-        :is="Component" 
-        class="root" 
-        :class="{ 
-          'count-down': timeStore.direction === 'down', 
-          'count-up': timeStore.direction === 'up', 
-        }">
+    <component :is="Component" class="root" :class="{
+        'count-down': timeStore.direction === 'down',
+        'count-up': timeStore.direction === 'up',
+      }">
 
-      </component>
-    </transition>
+    </component>
   </router-view>
 </template>
 
@@ -63,7 +58,6 @@ SUB(button): #99e9f2
 .root {
   font-size: 18px;
   font-family: 'inter', sans-serif;
-  transition: all 1s ease;
 }
 
 .count-up {
@@ -97,17 +91,6 @@ ol {
   position: absolute;
   top: 5px;
   left: 5px;
-}
-
-.page-slice-enter-active,
-.page-slice-leave-active {
-  position: absolute;
-  transition: 1s ease all;
-}
-
-.page-slice-enter-from,
-.page-slice-leave-to {
-  opacity: 0;
 }
 
 .flex-container {
