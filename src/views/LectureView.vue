@@ -22,7 +22,20 @@
           <td>{{ `${lec.completeLength}(${(lec.completeLength * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
           <td>{{ `${lec.completeToday}(${(lec.completeToday * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
           <td>{{ `${formatTime(lec.length)}(${(lec.length * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
-          <td @click="changeTarget(lec.subject)">{{ lec.targeted }}</td>
+          <!-- <td">{{ lec.targeted }}</td> -->
+          <td>
+            <svg @click="lec.target || changeTarget(lec.subject)" v-if="lec.target" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="targeted-icon">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg @click="lec.target || changeTarget(lec.subject)" v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="targeted-icon">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+
+          </td>
         </tr>
       </tbody>
     </table>
@@ -53,7 +66,6 @@ const lecturesToday = lectures.filter((lec) => {
 watch(
   lectures,
   () => {
-    console.log('test')
     targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject
   }
 )
@@ -95,9 +107,9 @@ const firstPerSub = computed(() => {
     })
     .map((lec) => {
       if (targetedSubject && lec.subject === targetedSubject) {
-        return Object.assign(lec, { targeted: true })
+        return Object.assign(lec, { target: true })
       }
-      return Object.assign(lec, { targeted: false })
+      return Object.assign(lec, { target: false })
     })
 })
 
@@ -106,17 +118,28 @@ const formatTime = (mins) => {
 }
 
 const changeTarget = async (subject) => {
-  const index = lectures.findIndex(lec => lec.targeted)
-  lectures[index].targeted = false
-  for (const lec of lectures) {
-    if (lec.subject === subject) {
-      const ind = lectures.findIndex(l => lec._id === l._id)
-      lectures[ind].targeted = true
-      break
+  const flags = [false, false]
+  try {
+    const { status } = await axios.get(`lecture/target-subject/${subject}`)
+    if(status !== 200) throw new Error('something go wrong...')
+    for (const [i, lec] of lectures.entries()) {
+      if (lec.target && lec.subject !== subject) {
+        lectures[i].target = false
+        flags[0] = true
+        if (flags[0] && flags[1]) break
+        continue
+      }
+      if (lec.subject === subject && !lec.target) {
+        lectures[i].target = true
+        flags[1] = true
+        if (flags[0] && flags[1]) break
+        continue
+      }
     }
+
+  } catch (error) {
+    console.log(error.message)   
   }
-  const response = await axios.get(`lecture/target-subject/${subject}`)
-  console.log(response.ok)
 }
 
 
@@ -126,12 +149,16 @@ onMounted(async () => {
   const { data: { data: { lectures: lecData } } } = await axios.get('lecture')
   lectures.splice(0, lectures.length, ...lecData)
 
-
   targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject
 })
 </script>
 
 <style scoped>
+.targeted-icon {
+  width: 20px;
+  margin-left: 10px;
+}
+
 .container {
   height: 100vh;
 }
