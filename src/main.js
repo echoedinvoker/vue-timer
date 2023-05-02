@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import TimerView from './views/TimerView.vue'
 import LectureView from './views/LectureView.vue'
+import DoneView from './views/DoneView.vue'
 import axios from 'axios';
 import VueAxios from 'vue-axios'
 import { createVuetify } from 'vuetify/lib/framework.mjs'
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: '/', redirect: '/timer'},
     { path: '/timer', component: TimerView},
     { path: '/lecture', component: LectureView},
+    { path: '/done', component: DoneView},
   ]
 })
 

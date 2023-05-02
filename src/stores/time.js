@@ -4,6 +4,8 @@ import { ref } from "vue";
 export const useTimeStore = defineStore('time', () => {
   const countDownInit = ref(120)
   const time = ref(0)
+  const startTime = ref(0)
+  const endTime = ref(0)
   const passTimes = ref(0)
   const direction = ref('down')
   const pause = ref(false)
@@ -36,5 +38,5 @@ export const useTimeStore = defineStore('time', () => {
     }, 1000)
   }
 
-  return { time, countDownInit, direction, pause, countUp, countDown, passTimes, init }
+  return { time, countDownInit, direction, pause, countUp, countDown, passTimes, init, startTime, endTime }
 })

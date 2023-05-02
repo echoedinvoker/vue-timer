@@ -1,54 +1,45 @@
 <template>
-  <div class="flex">
+  <div class="flex" @click="backgroundPause">
     <transition>
-      <div 
-        class="timer" 
-        :class="{
-          'pause': timeStore.pause
-        }"
-          v-if="!((timeStore.direction === 'up' && timeStore.pause) || 
-            (timeStore.direction === 'down' && !timeStore.time))" 
-      >
+      <div class="timer" :class="{'pause': timeStore.pause}"
+        @click="togglePause" @wheel="wheeling"
+        v-if="!((timeStore.direction === 'up' && timeStore.pause) ||
+    (timeStore.direction === 'down' && !timeStore.time))">
         {{ formatedTimer }}
       </div>
     </transition>
-      <transition name="left">
-        <button 
-          v-if="(timeStore.direction === 'up' && timeStore.pause) || 
-            (timeStore.direction === 'down' && !timeStore.time)" 
-          @click="timeStore.direction === 'down' ? start() : done()"
-          class="btn" :class="{
+    <button @click.stop="setInit" class="btn btn-set" 
+      v-if="timeStore.direction === 'down' && timeStore.pause && (timeStore.countDownInit !== timeStore.time)">SET</button>
+    <transition name="left">
+      <button class="btn" v-if="(timeStore.direction === 'up' && timeStore.pause) ||
+        (timeStore.direction === 'down' && !timeStore.time)" @click="timeStore.direction === 'down' ? start() : done()"
+        :class="{
+            'btn-down': timeStore.direction === 'down',
+            'btn-up': timeStore.direction === 'up',
+          }">{{ timeStore.direction === 'down' ?
+    buttonText.down.left :
+    buttonText.up.left }}
+      </button>
+    </transition>
+    <transition name="right">
+      <div v-if="(timeStore.direction === 'up' && timeStore.pause) ||
+        (timeStore.direction === 'down' && !timeStore.time)">
+        <v-badge :content="timeStore.passTimes"
+          :color="timeStore.direction === 'down' && timeStore.passTimes ? '' : 'rgba(0,0,0,0)'"
+          :dot="timeStore.direction === 'up' || !timeStore.passTimes">
+          <button class="btn" @click="timeStore.direction === 'down' ? pass() : skip()" :class="{
               'btn-down': timeStore.direction === 'down',
               'btn-up': timeStore.direction === 'up',
-            }">{{ timeStore.direction === 'down' ? 
-              buttonText.down.left : 
-              buttonText.up.left }}
-        </button>
-      </transition>
-      <transition name="right">
-      <div
-          v-if="(timeStore.direction === 'up' && timeStore.pause) || 
-            (timeStore.direction === 'down' && !timeStore.time)" 
-      >
-      <v-badge 
-        :content="timeStore.passTimes" 
-        :color="timeStore.direction === 'down' && timeStore.passTimes ? '' : 'rgba(0,0,0,0)'" 
-        :dot="timeStore.direction === 'up' || !timeStore.passTimes">
-        <button 
-          @click="timeStore.direction === 'down' ? pass() : skip()"
-          class="btn" :class="{
-              'btn-down': timeStore.direction === 'down',
-              'btn-up': timeStore.direction === 'up',
-            }">{{ 
-            timeStore.direction === 'down' ? 
-              (timeStore.init ? buttonText.down.right.init : buttonText.down.right.after) :
-              buttonText.up.right 
-            }}
-        </button>
-      </v-badge>
-        </div>
-      </transition>
-    </div>
+            }">{{
+    timeStore.direction === 'down' ?
+    (timeStore.init ? buttonText.down.right.init : buttonText.down.right.after) :
+    buttonText.up.right
+  }}
+          </button>
+        </v-badge>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <script setup>
@@ -58,18 +49,17 @@ import dedent from 'dedent';
 import { useTimeStore } from '@/stores/time';
 import { reactive } from 'vue';
 import { onMounted } from 'vue';
-import { onUnmounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 
+const router = useRouter()
 const timeStore = useTimeStore()
-
 const buttonText = reactive({
   up: { left: 'DONE', right: 'SKIP' },
-  down: { left: 'START', right: { init: 'REST', after: 'PASS'} }
+  down: { left: 'START', right: { init: 'REST', after: 'PASS' } }
 })
 
-// Computed
 
 const formatedTimer = computed(() => {
   const minute = Math.floor(timeStore.time / 60)
@@ -82,54 +72,69 @@ const formatedTimer = computed(() => {
   })}`
 })
 
-
-
-const start = () => {
+const start = async () => {
+  const { data: { data: { lectures }}} = await axios.get(`lecture?target=true`)
+  const targetLectureID = lectures[0]._id
+  await axios.patch(`lecture/${targetLectureID}`, {
+    timeStart: Date.now()
+  })
+  console.log(lectures)
+  await axios.post('bash/start', {
+    dir: `/home/matt/Documents/github/${lectures[0].subject}/${lectures[0].chapterPath}/${lectures[0].lecturePath}`,
+    url: `${lectures[0].linkUdemy}`
+  })
   timeStore.countUp()
   timeStore.pause = false
 }
-
-const done = () => {
+const done =async () => {
+  const { data: { data: { lectures }}} = await axios.get(`lecture?target=true`)
+  const targetLectureID = lectures[0]._id
+  await axios.patch(`lecture/${targetLectureID}`, {
+    timeEnd: Date.now(),
+    timeSpend: timeStore.time
+  })
   timeStore.time = timeStore.countDownInit
   timeStore.passTimes = 0
   timeStore.countDown()
   timeStore.pause = true
+  router.push('/done')
+  
 }
-
 const pass = () => {
   timeStore.time = timeStore.countDownInit
   if (!timeStore.init) {
-   timeStore.passTimes++
+    timeStore.passTimes++
   }
   timeStore.init = false
   timeStore.countDown()
   timeStore.pause = false
 }
-
 const skip = () => {
   timeStore.time = timeStore.countDownInit
   timeStore.countDown()
   timeStore.pause = true
 }
-
+const setInit = () => {
+  timeStore.countDownInit = timeStore.time
+}
 const togglePause = () => {
   timeStore.pause = !timeStore.pause
 }
-
 const wheeling = (ev) => {
   if (ev.deltaY < 0) timeStore.time++
   if (ev.deltaY > 0 && timeStore.time) timeStore.time--
 }
+const backgroundPause = () => {
+  if(timeStore.direction === 'up') {
+    timeStore.pause = !timeStore.pause
+  }
+}
+
+
+
 
 onMounted(async () => {
   await axios.get('bash/corner')
-  document.addEventListener('mousedown', togglePause)
-  document.addEventListener('wheel', wheeling)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('mousedown', togglePause)
-  document.removeEventListener('wheel', wheeling)
 })
 
 </script>
@@ -165,6 +170,19 @@ onUnmounted(() => {
 .btn-up {
   color: #171A1E;
   background-color: #FF6B6B;
+}
+
+.btn-set {
+  background-color: #FF6B6B;
+  padding: 2px;
+  border: none;
+  width: 30px;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
 .v-enter-active {

@@ -12,6 +12,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 import { useTimeStore } from './stores/time';
+import { provide } from 'vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -26,6 +27,8 @@ const switchPages = (e) => {
     }
   }
 }
+
+provide('switchPages', switchPages)
 
 document.addEventListener('keydown', switchPages)
 
