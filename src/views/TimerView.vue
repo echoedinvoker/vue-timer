@@ -76,7 +76,8 @@ const start = async () => {
   const { data: { data: { lectures }}} = await axios.get(`lecture?target=true`)
   const targetLectureID = lectures[0]._id
   await axios.patch(`lecture/${targetLectureID}`, {
-    timeStart: Date.now()
+    timeStart: Date.now(),
+    linkGit: `https//github.com/echoedinvoker/${lectures[0].subject}/tree/master/${lectures[0].chapterPath}/${lectures[0].lecturePath}`
   })
   console.log(lectures)
   await axios.post('bash/start', {
