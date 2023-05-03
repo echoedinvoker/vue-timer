@@ -24,13 +24,13 @@
           <td>{{ `${formatTime(lec.length)}(${(lec.length * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
           <!-- <td">{{ lec.targeted }}</td> -->
           <td>
-            <svg @click="lec.target || changeTarget(lec.subject)" v-if="lec.target" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="targeted-icon">
+            <svg @click="lec.target || changeTarget(lec.subject)" v-if="lec.target" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="targeted-icon">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <svg @click="lec.target || changeTarget(lec.subject)" v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="targeted-icon">
+            <svg @click="lec.target || changeTarget(lec.subject)" v-else xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="targeted-icon">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -72,7 +72,7 @@ watch(
 
 const firstPerSub = computed(() => {
   const sublist = []
-  return lectures
+  const filteredLectures = lectures
     .filter((lec) => {
       if (!sublist.includes(lec.subject) && lec.status === 'new') {
         sublist.push(lec.subject)
@@ -80,6 +80,8 @@ const firstPerSub = computed(() => {
       }
       return false
     })
+  console.log(sublist)
+  return filteredLectures
     .map((lec) => {
       const totalLength = lectures.reduce((a, l) => {
         if (l.subject === lec.subject) {
@@ -121,7 +123,7 @@ const changeTarget = async (subject) => {
   const flags = [false, false]
   try {
     const { status } = await axios.get(`lecture/target-subject/${subject}`)
-    if(status !== 200) throw new Error('something go wrong...')
+    if (status !== 200) throw new Error('something go wrong...')
     for (const [i, lec] of lectures.entries()) {
       if (lec.target && lec.subject !== subject) {
         lectures[i].target = false
@@ -138,7 +140,7 @@ const changeTarget = async (subject) => {
     }
 
   } catch (error) {
-    console.log(error.message)   
+    console.log(error.message)
   }
 }
 
@@ -148,6 +150,7 @@ let targetedSubject
 onMounted(async () => {
   await axios.get('bash/fullscreen')
   const { data: { data: { lectures: lecData } } } = await axios.get('lecture')
+  console.log(lecData)
   lectures.splice(0, lectures.length, ...lecData)
 
   targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject

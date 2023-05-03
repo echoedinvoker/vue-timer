@@ -3,24 +3,25 @@
     <div>
       <form @submit.prevent="done">
         <div class="chips">
-          <v-chip size="small" v-for="(t, i) in filtered" :key="i" @click="addTag(t)">{{ t }}</v-chip> 
-          <v-chip size="small" v-for="(t, i) in tagsAdd" :key="i" @click="removeTag(t)" class="added">{{ t }}</v-chip>
+          <button class="chip" type="button" v-for="(t, i) in filtered" :key="i" @click.prevent="addTag(t)">{{ t }}</button> 
+          <button class="chip added" type="button" v-for="(t, i) in data.tags" :key="i" @click.prevent="removeTag(t)">{{ t }}</button>
         </div>
         <div class="row">
           <label for="tag">TAG</label>
-          <input id="tag" type="text" v-model="tag" @input="autoc" @keydown="newTag">
+          <input id="tag" type="text" v-model="tag" @input="autoc">
+          <button class="add" type="button" @click="addTag(tag)">add</button>
         </div>
         <div class="row">
-          <label for="git">GIT LINK</label>
-          <textarea id="git" cols="30" rows="2" v-model="gitLink"></textarea>
+          <label for="git">UDEMY LINK</label>
+          <textarea id="git" cols="30" rows="2" v-model="data.udemyLink"></textarea>
         </div>
         <div class="row">
           <label for="summary">SUMMARY</label>
-          <textarea id="summary" cols="30" rows="2" v-model="summary"></textarea>
+          <textarea id="summary" cols="30" rows="2" v-model="data.summary"></textarea>
         </div>
         <div class="row">
           <label for="description">DESCRIPTION</label>
-          <textarea id="description" cols="30" rows="5" v-model="description"></textarea>
+          <textarea id="description" cols="30" rows="5" v-model="data.description"></textarea>
         </div>
         <div class="btn-container">
           <v-btn size="small" type="submit">DONE</v-btn>
@@ -34,6 +35,7 @@
 import { useTimeStore } from '@/stores/time';
 import axios from 'axios';
 import { onUnmounted } from 'vue';
+import { reactive } from 'vue';
 import { inject } from 'vue';
 import { onMounted } from 'vue';
 import { ref } from 'vue';
@@ -42,10 +44,14 @@ import { useRouter } from 'vue-router';
 const timeStore = useTimeStore()
 const router = useRouter()
 
-const tagsAdd = ref([])
-const summary = ref('')
-const description = ref('')
-const gitLink = ref('')
+const data = reactive({
+  tags: [],
+  summary: '',
+  description: '',
+  udemyLink: '',
+  target: false
+})
+
 const tag = ref('')
 const filtered = ref([])
 
@@ -56,21 +62,20 @@ const autoc = () => {
   filtered.value = tags.filter(t => t.toLowerCase().startsWith(tag.value.toLowerCase()));
   if (!tag.value.trim()) filtered.value = []
 }
+
 const addTag = (t) => {
-  if (!tagsAdd.value.includes(t)) tagsAdd.value.push(t)
+  if (!data.tags.includes(t) && t.trim()) data.tags.unshift(t)
   tag.value = ''
   filtered.value = []
 }
+
 const removeTag = (t) => {
-  tagsAdd.value = tagsAdd.value.filter(el => el !== t)
+  data.tags = data.tags.filter(el => el !== t)
 }
-const newTag = (ev) => {
-  if (ev.key !== 'Enter') return
-  if (!tagsAdd.value.includes(tag.value) && tag.value.trim()) tagsAdd.value.push(tag.value)
-  tag.value = ''
-  filtered.value = []
-}
-const done = () => {
+
+const done = async () => {
+  const { data: { data: { lectures: le }} } = await axios.get(`lecture?target=true`)
+  await axios.patch(`lecture/${le[0]._id}`, data)
   timeStore.time = timeStore.countDownInit
   timeStore.countDown()
   timeStore.init = false
@@ -92,14 +97,39 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.added {
+.chip {
+  border-radius: 100px;
+  padding: 3px 10px;
+  border-style: none;
+  font-weight: 600;
+  color: #495057;
+}
+.chip:hover {
+  cursor: pointer;
+}
+.added, 
+.added:active {
   background-color: #99e9f2;
   color: #212529;
 }
+.added:hover {
+  background-color: #99e9f2;
+  box-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
+  color: #212529;
+}
+
+.add {
+  margin-left: 10px;
+  border-style: none;
+  border-radius: 10px;
+  padding: 3px 10px;
+}
+
 .chips {
   width: 100%;
   display: flex;
   justify-content: center;
+  gap: 3px;
 }
 .v-chip {
   margin-right: 5px;

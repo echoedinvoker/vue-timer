@@ -81,7 +81,7 @@ const start = async () => {
   })
   console.log(lectures)
   await axios.post('bash/start', {
-    dir: `/home/matt/Documents/github/${lectures[0].subject}/${lectures[0].chapterPath}/${lectures[0].lecturePath}`,
+    dir: `/home/matt/Documents/github/study/${lectures[0].subject}/${lectures[0].chapterPath}/${lectures[0].lecturePath}`,
     url: `${lectures[0].linkUdemy}`
   })
   timeStore.countUp()
