@@ -22,7 +22,6 @@
           <td>{{ `${lec.completeLength}(${(lec.completeLength * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
           <td>{{ `${lec.completeToday}(${(lec.completeToday * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
           <td>{{ `${formatTime(lec.length)}(${(lec.length * 100 / lec.totalLength).toFixed(1)}%)` }}</td>
-          <!-- <td">{{ lec.targeted }}</td> -->
           <td>
             <svg @click="lec.target || changeTarget(lec.subject)" v-if="lec.target" xmlns="http://www.w3.org/2000/svg"
               fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="targeted-icon">
@@ -55,13 +54,18 @@ const lectures = reactive([])
 
 const now = moment.tz('Asia/Taipei')
 
-const lecturesToday = lectures.filter((lec) => {
+const lecturesToday = computed(() => {
+  return lectures.filter((lec) => {
   if (lec.status === 'done') {
+    console.log(lec)
     const lecDate = moment(lec.timeEnd)
     return now.isSame(lecDate, 'day')
   }
   return false
 })
+
+})
+
 
 watch(
   lectures,
@@ -80,7 +84,6 @@ const firstPerSub = computed(() => {
       }
       return false
     })
-  console.log(sublist)
   return filteredLectures
     .map((lec) => {
       const totalLength = lectures.reduce((a, l) => {
@@ -98,7 +101,7 @@ const firstPerSub = computed(() => {
       return Object.assign(lec, { totalLength, completeLength })
     })
     .map((lec) => {
-      const lecturesTodayOfSubject = lecturesToday.filter((l) => l.subject === lec.subject)
+      const lecturesTodayOfSubject = lecturesToday.value.filter((l) => l.subject === lec.subject)
       if (lecturesTodayOfSubject.length) {
         const completeLengthTodayOfSubject = lecturesTodayOfSubject.reduce((a, l) => {
           return a + l.length
@@ -150,7 +153,6 @@ let targetedSubject
 onMounted(async () => {
   await axios.get('bash/fullscreen')
   const { data: { data: { lectures: lecData } } } = await axios.get('lecture')
-  console.log(lecData)
   lectures.splice(0, lectures.length, ...lecData)
 
   targetedSubject = lectures.filter((lec) => lec.target)[0]?.subject
