@@ -79,10 +79,9 @@ const start = async () => {
     timeStart: Date.now(),
     linkGit: `https//github.com/echoedinvoker/${lectures[0].subject}/tree/master/${lectures[0].chapterPath}/${lectures[0].lecturePath}`
   })
-  console.log(lectures)
   await axios.post('bash/start', {
     dir: `/home/matt/Documents/github/study/${lectures[0].subject}/${lectures[0].chapterPath}/${lectures[0].lecturePath}`,
-    url: `${lectures[0].linkUdemy}`
+    url: `${lectures[0].linkUdemy ? lectures[0].linkUdemy : 'https://www.udemy.com/home/my-courses/learning/'}`
   })
   timeStore.countUp()
   timeStore.pause = false
