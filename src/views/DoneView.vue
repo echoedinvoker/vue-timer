@@ -49,7 +49,8 @@ const data = reactive({
   summary: '',
   description: '',
   udemyLink: '',
-  target: false
+  target: false,
+  status: 'done'
 })
 
 const tag = ref('')

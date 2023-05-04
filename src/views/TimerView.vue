@@ -2,7 +2,7 @@
   <div class="flex" @click="backgroundPause">
     <transition>
       <div class="timer" :class="{'pause': timeStore.pause}"
-        @click="togglePause" @wheel="wheeling"
+        @click="timeStore.direction === 'down' && togglePause" @wheel="wheeling"
         v-if="!((timeStore.direction === 'up' && timeStore.pause) ||
     (timeStore.direction === 'down' && !timeStore.time))">
         {{ formatedTimer }}
