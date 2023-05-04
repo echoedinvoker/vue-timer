@@ -76,7 +76,11 @@ const removeTag = (t) => {
 
 const done = async () => {
   const { data: { data: { lectures: le }} } = await axios.get(`lecture?target=true`)
-  await axios.patch(`lecture/${le[0]._id}`, data)
+  const payload = JSON.parse(JSON.stringify(data))
+  if (!payload.linkUdemy) {
+    delete payload.linkUdemy
+  }
+  await axios.patch(`lecture/${le[0]._id}`, payload)
   timeStore.time = timeStore.countDownInit
   timeStore.countDown()
   timeStore.init = false
