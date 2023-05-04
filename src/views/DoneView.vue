@@ -48,7 +48,7 @@ const data = reactive({
   tags: [],
   summary: '',
   description: '',
-  udemyLink: '',
+  linkUdemy: '',
   target: false,
   status: 'done'
 })
