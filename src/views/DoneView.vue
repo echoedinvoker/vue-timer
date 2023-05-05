@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <label for="tag">TAG</label>
-          <input id="tag" type="text" v-model="tag" @input="autoc">
+          <input id="tag" type="text" v-model="tag" @input="autoc" @keypress="inputTagbyEnter($event, tag)">
           <button class="add" type="button" @click="addTag(tag)">add</button>
         </div>
         <div class="row">
@@ -68,6 +68,13 @@ const addTag = (t) => {
   if (!data.tags.includes(t) && t.trim()) data.tags.unshift(t)
   tag.value = ''
   filtered.value = []
+}
+
+const inputTagbyEnter = (ev, t) => {
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    addTag(t)
+  }
 }
 
 const removeTag = (t) => {
