@@ -76,7 +76,7 @@ const now = moment.tz('Asia/Taipei')
 
 const lecturesToday = computed(() => {
   return lectures.filter((lec) => {
-    if (lec.status === 'done') {
+    if (lec.status === 'done' && lec.timeEnd) {
       const lecDate = moment(lec.timeEnd)
       return now.isSame(lecDate, 'day')
     }
