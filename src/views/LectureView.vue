@@ -40,8 +40,8 @@
     <!-- </table> -->
     <v-data-table theme="dark" v-model:items-per-page="itemsPerPage" :headers="headers" :items="firstPerSub"
       item-value="name" class='table'>
-      <template v-slot:item.target="{ item }">
-        <v-switch :model-value="item.value.target" @update:model-value="changeTarget(item.value.subject)"></v-switch>
+      <template v-slot:[`item.target`]="{ item }">
+        <v-switch :model-value="item.value.target" @click="changeTarget(item.value.subject)"></v-switch>
       </template>
     </v-data-table>
   </div>
@@ -150,25 +150,24 @@ const formatTime = (mins) => {
 }
 
 const changeTarget = async (subject) => {
-  const flags = [false, false]
-  try {
-    const { status } = await axios.get(`lecture/target-subject/${subject}`)
-    if (status !== 200) throw new Error('something go wrong...')
-    for (const [i, lec] of lectures.entries()) {
-      if (lec.target && lec.subject !== subject) {
-        lectures[i].target = false
-        flags[0] = true
-        if (flags[0] && flags[1]) break
-        continue
+  const newLectures = lectures.map(l => {
+    if (l.subject === subject) {
+      return {
+        ...l,
+        target: true
       }
-      if (lec.subject === subject && !lec.target) {
-        lectures[i].target = true
-        flags[1] = true
-        if (flags[0] && flags[1]) break
-        continue
+    } else {
+      return {
+        ...l,
+        target: false
       }
     }
+  })
 
+  lectures.splice(0, lectures.length, ...newLectures)
+
+  try {
+    await axios.get(`lecture/target-subject/${subject}`)
   } catch (error) {
     console.log(error.message)
   }
