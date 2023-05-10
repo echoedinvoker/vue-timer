@@ -13,10 +13,12 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useTimeStore } from './stores/time';
 import { provide } from 'vue';
+import { useLectureStore } from './stores/lecture';
 
 const route = useRoute()
 const router = useRouter()
 const timeStore = useTimeStore()
+const lectureStore = useLectureStore()
 
 const switchPages = (e) => {
   if (e.key === " ") {
@@ -29,7 +31,7 @@ const switchPages = (e) => {
 }
 
 provide('switchPages', switchPages)
-
+lectureStore.fetchAllLectures()
 document.addEventListener('keydown', switchPages)
 
 </script>

@@ -3,8 +3,10 @@
     <div>
       <form @submit.prevent="done">
         <div class="chips">
-          <button class="chip" type="button" v-for="(t, i) in filtered" :key="i" @click.prevent="addTag(t)">{{ t }}</button> 
-          <button class="chip added" type="button" v-for="(t, i) in data.tags" :key="i" @click.prevent="removeTag(t)">{{ t }}</button>
+          <button class="chip" type="button" v-for="(t, i) in filtered" :key="i" @click.prevent="addTag(t)">{{ t
+          }}</button>
+          <button class="chip added" type="button" v-for="(t, i) in data.tags" :key="i" @click.prevent="removeTag(t)">{{ t
+          }}</button>
         </div>
         <div class="row">
           <label for="tag">TAG</label>
@@ -32,6 +34,7 @@
 </template>
 
 <script setup>
+import { useLectureStore } from '@/stores/lecture';
 import { useTimeStore } from '@/stores/time';
 import axios from 'axios';
 import { onUnmounted } from 'vue';
@@ -42,6 +45,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const timeStore = useTimeStore()
+const lectureStore = useLectureStore()
 const router = useRouter()
 
 const data = reactive({
@@ -56,7 +60,9 @@ const data = reactive({
 const tag = ref('')
 const filtered = ref([])
 
-const tags = ['summary', 'description']
+// const tags = ['summary', 'description']
+const tags = lectureStore.target ? [...lectureStore.tags[lectureStore.target.subject]] : []
+
 
 const autoc = () => {
   filtered.value = []
@@ -82,7 +88,7 @@ const removeTag = (t) => {
 }
 
 const done = async () => {
-  const { data: { data: { lectures: le }} } = await axios.get(`lecture?target=true`)
+  const { data: { data: { lectures: le } } } = await axios.get(`lecture?target=true`)
   const payload = JSON.parse(JSON.stringify(data))
   if (!payload.linkUdemy) {
     delete payload.linkUdemy
@@ -91,7 +97,7 @@ const done = async () => {
   timeStore.time = timeStore.countDownInit
   timeStore.countDown()
   timeStore.init = false
-  timeStore.passTimes = 0 
+  timeStore.passTimes = 0
   timeStore.pause = true
   router.push('/timer')
 }
@@ -116,14 +122,17 @@ onUnmounted(() => {
   font-weight: 600;
   color: #495057;
 }
+
 .chip:hover {
   cursor: pointer;
 }
-.added, 
+
+.added,
 .added:active {
   background-color: #99e9f2;
   color: #212529;
 }
+
 .added:hover {
   background-color: #99e9f2;
   box-shadow: 0 0 10px rgba(153, 233, 242, 0.4);
@@ -138,17 +147,17 @@ onUnmounted(() => {
 }
 
 .chips {
-  width: 100%;
-  display: flex;
+  display: grid;
   justify-content: center;
+  align-content: center;
   gap: 3px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
+
 .v-chip {
   margin-right: 5px;
-  /* grid-template-columns: 1fr 1fr 1fr 1fr 1fr; */
-  /* align-items: start; */
-  /* gap: 5px; */
 }
+
 label {
   font-size: 10px;
   display: inline-block;
@@ -186,5 +195,4 @@ li {
   justify-content: center;
   margin-top: 10px;
 }
-
 </style>
