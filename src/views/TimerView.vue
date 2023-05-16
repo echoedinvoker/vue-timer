@@ -1,14 +1,12 @@
 <template>
   <div class="flex" @click="backgroundPause">
     <transition>
-      <div class="timer" :class="{'pause': timeStore.pause}"
-        @click="togglePause" @wheel="wheeling"
-        v-if="!((timeStore.direction === 'up' && timeStore.pause) ||
-    (timeStore.direction === 'down' && !timeStore.time))">
+      <div class="timer" :class="{ 'pause': timeStore.pause }" @click="togglePause" @wheel="wheeling" v-if="!((timeStore.direction === 'up' && timeStore.pause) ||
+          (timeStore.direction === 'down' && !timeStore.time))">
         {{ formatedTimer }}
       </div>
     </transition>
-    <button @click.stop="setInit" class="btn btn-set" 
+    <button @click.stop="setInit" class="btn btn-set"
       v-if="timeStore.direction === 'down' && timeStore.pause && (timeStore.countDownInit !== timeStore.time)">SET</button>
     <transition name="left">
       <button class="btn" v-if="(timeStore.direction === 'up' && timeStore.pause) ||
@@ -73,7 +71,7 @@ const formatedTimer = computed(() => {
 })
 
 const start = async () => {
-  const { data: { data: { lectures }}} = await axios.get(`lecture?target=true`)
+  const { data: { data: { lectures } } } = await axios.get(`lecture?target=true`)
   const targetLectureID = lectures[0]._id
   await axios.patch(`lecture/${targetLectureID}`, {
     timeStart: Date.now(),
@@ -86,8 +84,8 @@ const start = async () => {
   timeStore.countUp()
   timeStore.pause = false
 }
-const done =async () => {
-  const { data: { data: { lectures }}} = await axios.get(`lecture?target=true`)
+const done = async () => {
+  const { data: { data: { lectures } } } = await axios.get(`lecture?target=true`)
   const targetLectureID = lectures[0]._id
   await axios.patch(`lecture/${targetLectureID}`, {
     timeEnd: Date.now(),
@@ -98,7 +96,7 @@ const done =async () => {
   timeStore.countDown()
   timeStore.pause = true
   router.push('/done')
-  
+
 }
 const pass = () => {
   timeStore.time = timeStore.countDownInit
@@ -122,11 +120,24 @@ const togglePause = () => {
   timeStore.pause = !timeStore.pause
 }
 const wheeling = (ev) => {
-  if (ev.deltaY < 0) timeStore.time++
-  if (ev.deltaY > 0 && timeStore.time) timeStore.time--
+  ev.preventDefault();
+  if (ev.deltaY < 0) {
+    if (ev.ctrlKey) {
+      timeStore.time = timeStore.time + 60
+      return
+    }
+    timeStore.time++
+  }
+  if (ev.deltaY > 0 && timeStore.time) {
+    if (ev.ctrlKey && timeStore.time > 60) {
+      timeStore.time = timeStore.time - 60
+      return
+    }
+    timeStore.time--
+  }
 }
 const backgroundPause = () => {
-  if(timeStore.direction === 'up') {
+  if (timeStore.direction === 'up') {
     timeStore.pause = !timeStore.pause
   }
 }
