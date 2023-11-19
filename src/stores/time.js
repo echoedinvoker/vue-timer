@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useTimeStore = defineStore('time', () => {
-  const countDownInit = ref(120)
+  const countDownInit = ref(300)
   const time = ref(0)
   const startTime = ref(0)
   const endTime = ref(0)

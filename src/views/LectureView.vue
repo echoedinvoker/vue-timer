@@ -57,7 +57,7 @@ import { watch } from 'vue';
 import { ref } from 'vue';
 import { VDataTable } from 'vuetify/labs/VDataTable';
 
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(10)
 const headers = ref([
   { title: 'Subject', align: 'start', sortable: false, key: 'subject' },
   { title: 'Chapter', align: 'start', sortable: false, key: 'chapter' },
