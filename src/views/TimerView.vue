@@ -2,7 +2,7 @@
   <div class="flex" @click="backgroundPause">
     <transition>
       <div class="timer" :class="{ 'pause': timeStore.pause }" @click="togglePause" @wheel="wheeling" v-if="!((timeStore.direction === 'up' && timeStore.pause) ||
-          (timeStore.direction === 'down' && !timeStore.time))">
+        (timeStore.direction === 'down' && !timeStore.time))">
         {{ formatedTimer }}
       </div>
     </transition>
@@ -12,11 +12,11 @@
       <button class="btn" v-if="(timeStore.direction === 'up' && timeStore.pause) ||
         (timeStore.direction === 'down' && !timeStore.time)" @click="timeStore.direction === 'down' ? start() : done()"
         :class="{
-            'btn-down': timeStore.direction === 'down',
-            'btn-up': timeStore.direction === 'up',
-          }">{{ timeStore.direction === 'down' ?
-    buttonText.down.left :
-    buttonText.up.left }}
+          'btn-down': timeStore.direction === 'down',
+          'btn-up': timeStore.direction === 'up',
+        }">{{ timeStore.direction === 'down' ?
+  buttonText.down.left :
+  buttonText.up.left }}
       </button>
     </transition>
     <transition name="right">
@@ -26,13 +26,13 @@
           :color="timeStore.direction === 'down' && timeStore.passTimes ? '' : 'rgba(0,0,0,0)'"
           :dot="timeStore.direction === 'up' || !timeStore.passTimes">
           <button class="btn" @click="timeStore.direction === 'down' ? pass() : skip()" :class="{
-              'btn-down': timeStore.direction === 'down',
-              'btn-up': timeStore.direction === 'up',
-            }">{{
-    timeStore.direction === 'down' ?
-    (timeStore.init ? buttonText.down.right.init : buttonText.down.right.after) :
-    buttonText.up.right
-  }}
+            'btn-down': timeStore.direction === 'down',
+            'btn-up': timeStore.direction === 'up',
+          }">{{
+  timeStore.direction === 'down' ?
+  (timeStore.init ? buttonText.down.right.init : buttonText.down.right.after) :
+  buttonText.up.right
+}}
           </button>
         </v-badge>
       </div>
@@ -71,31 +71,15 @@ const formatedTimer = computed(() => {
 })
 
 const start = async () => {
-  const { data: { data: { lectures } } } = await axios.get(`lecture?target=true`)
-  const targetLectureID = lectures[0]._id
-  await axios.patch(`lecture/${targetLectureID}`, {
-    timeStart: Date.now(),
-    linkGit: `https//github.com/echoedinvoker/${lectures[0].subject}/tree/master/${lectures[0].chapterPath}/${lectures[0].lecturePath}`
-  })
-  await axios.post('bash/start', {
-    dir: `/home/matt/Documents/github/study/${lectures[0].subject}/${lectures[0].chapterPath}/${lectures[0].lecturePath}`,
-    url: `${lectures[0].linkUdemy ? lectures[0].linkUdemy : 'https://www.udemy.com/home/my-courses/learning/'}`
-  })
   timeStore.countUp()
-  timeStore.pause = false
+  timeStore.pause = true
 }
 const done = async () => {
-  const { data: { data: { lectures } } } = await axios.get(`lecture?target=true`)
-  const targetLectureID = lectures[0]._id
-  await axios.patch(`lecture/${targetLectureID}`, {
-    timeEnd: Date.now(),
-    timeSpend: timeStore.time
-  })
   timeStore.time = timeStore.countDownInit
   timeStore.passTimes = 0
   timeStore.countDown()
-  timeStore.pause = true
-  router.push('/done')
+  timeStore.pause = false
+  router.push('/timer')
 
 }
 const pass = () => {
@@ -152,6 +136,12 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.timer {
+  font-size: 30vw;
+  width: 100%;
+  text-align: center;
+}
+
 .flex {
   width: 100%;
   height: 100vh;
@@ -159,6 +149,11 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+  /* 垂直居中 */
+  align-items: center;
+  /* 水平居中 */
 }
 
 .pause {
@@ -167,11 +162,20 @@ onMounted(async () => {
 
 .btn {
   font-weight: 700;
-  padding: 10px;
-  border: none;
+  padding: 1vw;
   width: 70px;
   border-radius: 100px;
   transition: all 1s ease;
+  font-weight: 600;
+  padding: 1vw;
+  /* 使用 vw 單位 */
+  border: none;
+  width: 50vw;
+  height: 20vh;
+  /* 按鈕寬度隨視窗寬度變化 */
+  border-radius: 100px;
+  transition: all 1s ease;
+  font-size: 5vw;
 }
 
 .btn-down {
